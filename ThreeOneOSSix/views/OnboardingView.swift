@@ -400,12 +400,7 @@ struct OnboardingView: View {
         }
     }
 }
-
-enum OnboardingStore {
-    static let completedVersionKey = "onboarding.completedVersion"
-    static let completedFingerprintKey = "onboarding.completedFingerprint"
-
-    static var currentVersion: String {
+ static var currentVersion: String {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
         let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
         return "\(v) (\(b))"
