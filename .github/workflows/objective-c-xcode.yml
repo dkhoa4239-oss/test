@@ -1,0 +1,39 @@
+# .github/workflows/build.yml
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build unsigned archive
+        run: |
+          xcodebuild archive \
+            -project ThreeOneOSSix.xcodeproj \
+            -scheme 3106 \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=''
+
+      - name: Package IPA
+        run: |
+          APP=$(find "$RUNNER_TEMP/App.xcarchive/Products/Applications" -name '*.app' -maxdepth 1 -print -quit)
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry 3106-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3106-unsigned-ipa
+          path: ${{ runner.temp }}/3106-unsigned.ipa
+          retention-days: 7
